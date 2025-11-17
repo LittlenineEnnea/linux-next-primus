@@ -1,0 +1,35 @@
+name: Build Project
+
+on:
+  push:
+    branches:
+      - primus-5.19-rc6-ufs1
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Chmod SH files
+        run: |
+          chmod +x ./env.sh
+          chmod +x ./build.sh
+
+      - name: Setup Environment
+        run: ./env.sh
+
+      - name: Build project
+        run: ./build.sh
+
+      - name: Zip out folder
+        run: zip -r out.zip out/
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: out-zip
+          path: out.zip
