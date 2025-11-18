@@ -45,14 +45,17 @@ jobs:
 
       - name: Package kernel outputs
         run: |
-          mkdir -p kernel_output
-          cp -v out/arch/arm64/boot/Image kernel_output/
-          cp -v out/arch/arm64/boot/dts/*.dtb kernel_output/ 2>/dev/null || true
-          cp -vr out/arch/arm64/boot/dts/ kernel_output/dtbs || true
-          cp -vr out/lib/modules/ kernel_output/modules || true
+          mkdir -p kernel_output/dtbs
+          mkdir -p kernel_output/modules
 
+          # 只复制需要的文件
+          cp -v out/arch/arm64/boot/Image kernel_output/
+          cp -v out/arch/arm64/boot/dts/*.dtb kernel_output/dtbs/ 2>/dev/null || true
+          cp -vr out/lib/modules/* kernel_output/modules/ 2>/dev/null || true
+
+          # 打包
           cd kernel_output
-          zip -r ../kernel_build.zip . --no-follow-symlinks
+          zip -r ../kernel_build.zip .
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
