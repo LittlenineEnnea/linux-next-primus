@@ -1,4 +1,4 @@
-name: Build ARM64 Kernel
+name: Build ARM64 Linux Kernel
 
 on:
   workflow_dispatch:
@@ -12,7 +12,7 @@ jobs:
       CROSS_COMPILE: aarch64-linux-gnu-
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup build environment
@@ -24,32 +24,38 @@ jobs:
           sudo apt install -y gcc-aarch64-linux-gnu
           ccache -M 10G
 
-      - name: Print system info
+      - name: Show toolchain info
         run: |
-          uname -a
-          echo "Using CROSS_COMPILE=${CROSS_COMPILE}"
+          aarch64-linux-gnu-gcc --version
           ccache -s
 
-      - name: Clean and configure kernel
+      - name: Kernel clean + defconfig
         run: |
           make mrproper
-          make -j$(nproc) ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} O=out defconfig
+          make O=out ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} defconfig
 
-      - name: Build kernel
+      - name: Build Kernel (Image, dtbs, modules)
         run: |
-          make -j$(nproc) ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} O=out Image dtbs modules
+          make -j$(nproc) O=out ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} Image dtbs modules
 
-      - name: List output files
+      - name: Check output directory
         run: |
-          echo "Output directory:"
-          ls -lh out
+          echo "Listing out/:"
+          ls -R out
 
-      - name: Zip output
+      - name: Package kernel outputs
         run: |
-          zip -r out.zip out/
+          mkdir -p kernel_output
+          cp -v out/arch/arm64/boot/Image kernel_output/
+          cp -v out/arch/arm64/boot/dts/*.dtb kernel_output/ 2>/dev/null || true
+          cp -vr out/arch/arm64/boot/dts/ kernel_output/dtbs || true
+          cp -vr out/lib/modules/ kernel_output/modules || true
 
-      - name: Upload artifact
+          cd kernel_output
+          zip -r ../kernel_build.zip . --no-follow-symlinks
+
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: kernel-out
-          path: out.zip
+          name: linux-kernel-output
+          path: kernel_build.zip
