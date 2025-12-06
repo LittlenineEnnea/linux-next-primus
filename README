@@ -1,3 +1,26 @@
+<p><b>Build Component:</b></p>
+
+<table class="component" border=1>
+	<tr>
+		<th>Image</th>
+		<th>Build/Label</th>
+		<th>Distro Path</th>
+		<th>Format</th>
+		<th>List of Addons</th>
+		<th>Is Format Distributed</th>
+	</tr>
+	<tr>
+		<td>Linux Kernel</td>
+		<td>Linux-Primus-5.19.rc6</td>
+		<td>Linux Kernel</td>
+		<td>SRC</td>
+		<td></td>
+		<td></td>
+	</tr>
+</table>
+<br/>
+</body>
+</html>
 Linux kernel
 ============
 
